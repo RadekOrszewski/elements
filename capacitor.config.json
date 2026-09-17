@@ -1,0 +1,7 @@
+{
+  "appId": "ninja.leanagile.elements",
+  "appName": "Element Trainer",
+  "webDir": "www",
+  "android": { "backgroundColor": "#EEF2F5" },
+  "plugins": { "SystemBars": { "insetsHandling": "css", "initialViewportFitValueHint": "cover" } }
+}

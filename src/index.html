@@ -1,0 +1,1068 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#EEF2F5">
+<title>Element Trainer</title>
+<!--CAPACITOR-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap">
+<style>
+:root{
+  --bg:#EEF2F5; --surface:#FFFFFF; --ink:#16212E; --muted:#5C6B7A; --line:#D3DBE3; --slot:#E2E8EE;
+  --primary:#2B4FD6; --primary-ink:#FFFFFF; --sel:#F2B632; --ok:#1C8A57; --bad:#C63A3A;
+  --c-alkali:#FFC9B0; --c-alkaline:#FFE39E; --c-transition:#C9D8FF; --c-post:#C9E4D8; --c-metalloid:#DDD1F5;
+  --c-nonmetal:#CBEFCF; --c-halogen:#BCE8EF; --c-noble:#F2CDEA; --c-lanthanide:#F5DAB9; --c-actinide:#EDC8C8;
+  --display:"Bricolage Grotesque", "Roboto Flex", system-ui, sans-serif;
+  --body:system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sat:max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px));
+  --sab:max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px));
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1722; --surface:#18222F; --ink:#E8EEF4; --muted:#93A3B3; --line:#2A3746; --slot:#233040;
+    --primary:#8AA3FF; --primary-ink:#0F1722; --sel:#F2B632; --ok:#3DBB7E; --bad:#F06B6B;
+    --c-alkali:#6B3A26; --c-alkaline:#65531E; --c-transition:#2E4478; --c-post:#2D5244; --c-metalloid:#4B3C70;
+    --c-nonmetal:#2C5A36; --c-halogen:#235862; --c-noble:#633B5B; --c-lanthanide:#6A4B28; --c-actinide:#5E3434;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1722; --surface:#18222F; --ink:#E8EEF4; --muted:#93A3B3; --line:#2A3746; --slot:#233040;
+  --primary:#8AA3FF; --primary-ink:#0F1722; --sel:#F2B632; --ok:#3DBB7E; --bad:#F06B6B;
+  --c-alkali:#6B3A26; --c-alkaline:#65531E; --c-transition:#2E4478; --c-post:#2D5244; --c-metalloid:#4B3C70;
+  --c-nonmetal:#2C5A36; --c-halogen:#235862; --c-noble:#633B5B; --c-lanthanide:#6A4B28; --c-actinide:#5E3434;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+body{padding-top:var(--sat);min-height:100vh;overflow-x:hidden}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--sel);outline-offset:2px}
+.wrap{max-width:540px;margin:0 auto;padding:16px 16px calc(28px + var(--sab))}
+h1,h2,h3{font-family:var(--display);margin:0;line-height:1.1}
+h1{font-size:34px;font-weight:800;letter-spacing:-.02em}
+h2{font-size:24px;font-weight:700}
+h3{font-size:17px;font-weight:700;margin:26px 0 10px}
+p{margin:0}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.row{display:flex;align-items:center;gap:10px}
+.spread{justify-content:space-between}
+.stack{display:grid;gap:10px}
+
+/* top bars */
+.top{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.icon{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;flex:none;font-size:18px}
+.bar{flex:1;height:8px;border-radius:4px;background:var(--slot);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--primary);border-radius:4px;transition:width .25s}
+.count{font-variant-numeric:tabular-nums;color:var(--muted);font-size:14px;min-width:44px;text-align:right}
+
+/* buttons */
+.btn{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;padding:14px 16px;border-radius:12px;border:1px solid var(--line);background:var(--surface);text-align:left}
+.btn b{font-weight:650;font-size:17px}
+.btn .sub{font-size:13px;color:var(--muted)}
+.btn.primary{background:var(--primary);color:var(--primary-ink);border-color:transparent}
+.btn.primary .sub{color:inherit;opacity:.8}
+.btn[disabled]{opacity:.5;cursor:default}
+.btn.center{align-items:center;text-align:center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;font-size:15px}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.danger{color:var(--bad)}
+
+/* hero */
+.hero{margin:6px 0 18px}
+.hero h1{margin-bottom:6px}
+.stats{display:flex;gap:22px;margin:14px 0 4px}
+.stat b{display:block;font-family:var(--display);font-size:28px;font-weight:700;line-height:1}
+.stat span{font-size:13px;color:var(--muted)}
+
+/* periodic grid */
+.pt{container-type:inline-size;display:grid;grid-template-columns:.7fr repeat(18,1fr);gap:2px;margin:10px -4px 0}
+.pt .hd{font-size:9px;font-size:2.1cqi;color:var(--muted);text-align:center;align-self:end;padding:0;border:0;background:none;line-height:1.2}
+.pt .hd.v{align-self:center}
+.pt .hd.act{color:var(--ink);font-weight:700}
+.cell{aspect-ratio:5/6;border:0;border-radius:3px;padding:0;background:var(--slot);font-family:var(--display);font-weight:700;font-size:10px;font-size:2.9cqi;line-height:1;display:grid;place-items:center;color:var(--ink);min-width:0}
+.cell.dim{opacity:.35}
+.cell.out{outline:2px solid var(--ink);outline-offset:-1px}
+.cell.mark,.cell.sel{background:var(--sel)!important;color:#16212E}
+.cell.ok{background:var(--ok)!important;color:#fff}
+.cell.bad{background:var(--bad)!important;color:#fff}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:12px;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+
+.cat-alkali{background:var(--c-alkali)} .cat-alkaline{background:var(--c-alkaline)} .cat-transition{background:var(--c-transition)}
+.cat-post{background:var(--c-post)} .cat-metalloid{background:var(--c-metalloid)} .cat-nonmetal{background:var(--c-nonmetal)}
+.cat-halogen{background:var(--c-halogen)} .cat-noble{background:var(--c-noble)} .cat-lanthanide{background:var(--c-lanthanide)} .cat-actinide{background:var(--c-actinide)}
+
+/* the element tile */
+.tile{position:relative;width:min(58vw,212px);aspect-ratio:1/1.06;margin:4px auto 0;background:var(--surface);border:2px solid var(--ink);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:6px 6px 0 var(--ink)}
+.t-top{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--muted);min-height:20px}
+.t-top b{color:var(--ink)}
+.t-sym{font-family:var(--display);font-weight:800;font-size:clamp(58px,20vw,90px);line-height:.95;letter-spacing:-.02em}
+.t-name{font-size:19px;font-weight:600;min-height:28px}
+.slot{display:inline-grid;place-items:center;min-width:1.7em;padding:0 .2em;border:2px dashed var(--muted);border-radius:7px;color:var(--muted);font-weight:700;line-height:1.2}
+.t-sym .slot{min-width:1.25em;font-size:.72em;line-height:1.25;border-radius:12px}
+.tile.compact{width:100%;aspect-ratio:auto;flex-direction:row;align-items:center;justify-content:flex-start;gap:16px;padding:10px 16px;box-shadow:4px 4px 0 var(--ink)}
+.tile.compact .t-sym{font-size:44px;min-width:1.2em}
+.tile.compact .t-top{order:3;margin-left:auto;flex-direction:column;align-items:flex-end;gap:0}
+.tile.banner{justify-content:center;align-items:center;text-align:center}
+.tile.banner .t-sym{font-size:clamp(64px,22vw,96px)}
+.tile.reveal{animation:flip .32s ease-out}
+@keyframes flip{from{transform:perspective(600px) rotateY(80deg);opacity:.3}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion: reduce){.tile.reveal{animation:none}.bar i,.fb{transition:none}}
+
+/* quiz */
+.prompt{font-family:var(--display);font-size:21px;font-weight:700;text-align:center;margin:22px 0 14px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{min-height:66px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);padding:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.opt .os{font-family:var(--display);font-weight:700;font-size:30px;line-height:1}
+.opt .on{font-size:17px;font-weight:600}
+.opt .os + .on{font-size:13px;font-weight:400;color:var(--muted)}
+.opt.ok,.num.ok{background:color-mix(in oklab,var(--ok) 25%,var(--surface));border-color:var(--ok)}
+.opt.bad,.num.bad{background:color-mix(in oklab,var(--bad) 22%,var(--surface));border-color:var(--bad)}
+.nums{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.nums.p7{grid-template-columns:repeat(7,1fr)}
+.num{height:52px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);font-family:var(--display);font-size:21px;font-weight:700}
+.typebox{display:grid;gap:10px}
+.typebox input{width:100%;font:inherit;font-size:24px;padding:12px 14px;border-radius:12px;border:2px solid var(--line);background:var(--surface);color:var(--ink);text-align:center}
+.typebox input:focus{border-color:var(--primary);outline:none}
+.pickinfo{text-align:center;min-height:22px;margin:10px 0;color:var(--muted);font-size:14px}
+.skip{display:block;margin:16px auto 0;background:none;border:0;color:var(--muted);text-decoration:underline;font-size:15px;padding:8px}
+main.answered{padding-bottom:190px}
+
+/* feedback sheet */
+.fb{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:4px solid var(--ok);padding:16px 20px calc(16px + var(--sab));transform:translateY(105%);transition:transform .18s ease-out;box-shadow:0 -8px 30px rgba(0,0,0,.12)}
+.fb.show{transform:none}
+.fb.bad{border-top-color:var(--bad)}
+.fb .inner{max-width:540px;margin:0 auto;display:grid;gap:10px}
+.fb h2{font-size:22px}
+.fb.ok h2{color:var(--ok)} .fb.bad h2{color:var(--bad)}
+.facts{display:flex;flex-wrap:wrap;gap:6px}
+.fact{background:var(--slot);border-radius:8px;padding:4px 10px;font-size:14px}
+.fact b{font-family:var(--display)}
+.note{font-size:14px;color:var(--muted)}
+
+/* lists */
+.list{display:grid;gap:8px}
+.li{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 12px;text-align:left;width:100%}
+.mini{width:44px;height:44px;border-radius:8px;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:20px;flex:none;background:var(--slot)}
+.li .grow{flex:1;min-width:0}
+.li .tag{font-size:12px;color:var(--muted)}
+.skillrow{display:grid;grid-template-columns:110px 1fr 44px;align-items:center;gap:10px;font-size:14px}
+.skillrow .bar{height:10px}
+.dots{display:inline-flex;gap:3px}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--slot);display:inline-block}
+.dots i.f{background:var(--ok)}
+.dots.w i.f{background:var(--bad)}
+.score{font-family:var(--display);font-size:64px;font-weight:800;line-height:1;margin:10px 0 4px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+.setting{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.setting:last-child{border-bottom:0}
+.switch{width:50px;height:30px;border-radius:15px;border:0;background:var(--line);position:relative;flex:none}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .15s}
+.switch.on{background:var(--primary)}
+.switch.on::after{left:23px}
+.grouplist{margin-top:12px}
+
+/* sheet (modal) */
+.scrim{position:fixed;inset:0;background:rgba(10,16,24,.45);z-index:30;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--bg);width:100%;max-width:540px;border-radius:18px 18px 0 0;padding:18px 18px calc(22px + var(--sab));max-height:88vh;overflow:auto}
+.sheet .tile{margin-bottom:18px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="fb" class="fb" aria-live="polite"></div>
+<div id="modal"></div>
+<script>
+(() => {
+'use strict';
+
+/* ---------- data: Z symbol EN PL group period category ---------- */
+const RAW = `1 H Hydrogen Wodór 1 1 nonmetal
+2 He Helium Hel 18 1 noble
+3 Li Lithium Lit 1 2 alkali
+4 Be Beryllium Beryl 2 2 alkaline
+5 B Boron Bor 13 2 metalloid
+6 C Carbon Węgiel 14 2 nonmetal
+7 N Nitrogen Azot 15 2 nonmetal
+8 O Oxygen Tlen 16 2 nonmetal
+9 F Fluorine Fluor 17 2 halogen
+10 Ne Neon Neon 18 2 noble
+11 Na Sodium Sód 1 3 alkali
+12 Mg Magnesium Magnez 2 3 alkaline
+13 Al Aluminium Glin 13 3 post
+14 Si Silicon Krzem 14 3 metalloid
+15 P Phosphorus Fosfor 15 3 nonmetal
+16 S Sulfur Siarka 16 3 nonmetal
+17 Cl Chlorine Chlor 17 3 halogen
+18 Ar Argon Argon 18 3 noble
+19 K Potassium Potas 1 4 alkali
+20 Ca Calcium Wapń 2 4 alkaline
+21 Sc Scandium Skand 3 4 transition
+22 Ti Titanium Tytan 4 4 transition
+23 V Vanadium Wanad 5 4 transition
+24 Cr Chromium Chrom 6 4 transition
+25 Mn Manganese Mangan 7 4 transition
+26 Fe Iron Żelazo 8 4 transition
+27 Co Cobalt Kobalt 9 4 transition
+28 Ni Nickel Nikiel 10 4 transition
+29 Cu Copper Miedź 11 4 transition
+30 Zn Zinc Cynk 12 4 transition
+31 Ga Gallium Gal 13 4 post
+32 Ge Germanium German 14 4 metalloid
+33 As Arsenic Arsen 15 4 metalloid
+34 Se Selenium Selen 16 4 nonmetal
+35 Br Bromine Brom 17 4 halogen
+36 Kr Krypton Krypton 18 4 noble
+37 Rb Rubidium Rubid 1 5 alkali
+38 Sr Strontium Stront 2 5 alkaline
+39 Y Yttrium Itr 3 5 transition
+40 Zr Zirconium Cyrkon 4 5 transition
+41 Nb Niobium Niob 5 5 transition
+42 Mo Molybdenum Molibden 6 5 transition
+43 Tc Technetium Technet 7 5 transition
+44 Ru Ruthenium Ruten 8 5 transition
+45 Rh Rhodium Rod 9 5 transition
+46 Pd Palladium Pallad 10 5 transition
+47 Ag Silver Srebro 11 5 transition
+48 Cd Cadmium Kadm 12 5 transition
+49 In Indium Ind 13 5 post
+50 Sn Tin Cyna 14 5 post
+51 Sb Antimony Antymon 15 5 metalloid
+52 Te Tellurium Tellur 16 5 metalloid
+53 I Iodine Jod 17 5 halogen
+54 Xe Xenon Ksenon 18 5 noble
+55 Cs Caesium Cez 1 6 alkali
+56 Ba Barium Bar 2 6 alkaline
+57 La Lanthanum Lantan 3 6 lanthanide
+72 Hf Hafnium Hafn 4 6 transition
+73 Ta Tantalum Tantal 5 6 transition
+74 W Tungsten Wolfram 6 6 transition
+75 Re Rhenium Ren 7 6 transition
+76 Os Osmium Osm 8 6 transition
+77 Ir Iridium Iryd 9 6 transition
+78 Pt Platinum Platyna 10 6 transition
+79 Au Gold Złoto 11 6 transition
+80 Hg Mercury Rtęć 12 6 transition
+81 Tl Thallium Tal 13 6 post
+82 Pb Lead Ołów 14 6 post
+83 Bi Bismuth Bizmut 15 6 post
+84 Po Polonium Polon 16 6 post
+85 At Astatine Astat 17 6 halogen
+86 Rn Radon Radon 18 6 noble
+87 Fr Francium Frans 1 7 alkali
+89 Ac Actinium Aktyn 3 7 actinide`;
+
+const ELS = RAW.trim().split('\n').map(l => {
+  const [z, s, en, pl, g, p, c] = l.trim().split(/\s+/);
+  return { z: +z, s, en, pl, g: +g, p: +p, c };
+});
+const BYZ = new Map(ELS.map(e => [e.z, e]));
+const ALT = { 13: ['aluminum'], 16: ['sulphur'], 55: ['cesium'] };
+const SKILLS = ['sym', 'name', 'grp', 'per', 'pos'];
+const CATS = ['alkali','alkaline','transition','post','metalloid','nonmetal','halogen','noble','lanthanide','actinide'];
+
+/* ---------- strings ---------- */
+const STR = {
+  en: {
+    app: 'Element Trainer',
+    tagline: 'Symbols, names, groups and periods — the app keeps asking about what you got wrong.',
+    start: 'Start session', startSub: '{n} questions, weakest elements first',
+    cont: 'Continue session', contSub: 'Question {i} of {n}',
+    mistakes: 'Fix my mistakes', mistakesSub: '{n} answers to fix', noMistakes: 'Nothing to fix right now',
+    learn: 'Learn the table', learnSub: 'Browse groups, periods and names',
+    progress: 'Progress', progressSub: 'What you know and what needs work',
+    settings: 'Settings', settingsSub: 'Language, session length, scope',
+    mastered: 'mastered', toFix: 'to fix', seen: 'practised',
+    q_symMC: 'Pick the symbol', q_symType: 'Type the symbol',
+    q_nameMC: 'Pick the name', q_nameType: 'Type the name',
+    q_group: 'Which group is it in?', q_period: 'Which period is it in?',
+    q_tap: 'Tap its place in the table', q_where: 'Which element sits in the marked spot?',
+    q_gp: 'Which element is in group {g}, period {p}?',
+    q_inGroup: 'Which of these is in group {g}?', q_inPeriod: 'Which of these is in period {p}?',
+    group: 'group', period: 'period', Group: 'Group', Period: 'Period',
+    gShort: 'group', pShort: 'period',
+    check: 'Check', idk: "I don't know", next: 'Next', finish: 'See results',
+    right: 'Correct', wrong: 'Not this time', yourAnswer: 'Your answer: {a}',
+    caseNote: 'Mind the capitals: {s}', spellNote: 'Correct spelling: {n}',
+    typeHere: 'Type here', tapFirst: 'Tap a cell', picked: 'Selected: group {g}, period {p}',
+    done: 'Session complete', scoreOf: '{c} of {n} correct', again: 'Start another session',
+    home: 'Back to home', missedList: 'Answered wrong this session', allRight: 'No mistakes this session.',
+    sk_sym: 'Symbols', sk_name: 'Names', sk_grp: 'Groups', sk_per: 'Periods', sk_pos: 'Place in table',
+    bySkill: 'By skill', heat: 'Element map', trouble: 'Most missed', history: 'Recent sessions',
+    lg_new: 'not practised', lg_learn: 'learning', lg_master: 'mastered', lg_fix: 'to fix',
+    noHistory: 'No sessions yet. Start one from the home screen.', noTrouble: 'No mistakes recorded yet.',
+    hideSym: 'Hide symbols', showSym: 'Show symbols', tapHint: 'Tap an element for details, or a group or period number to list its members.',
+    language: 'Language', length: 'Questions per session', periods: 'Periods to practise',
+    practise: 'What to practise', typing: 'Typed answers', typingSub: 'Asked once an element is familiar',
+    reset: 'Reset all progress', resetConfirm: 'Tap again to erase everything', resetDone: 'Progress erased',
+    scope: 'Covers 74 elements: periods 1–6 (lanthanum stands in for the lanthanides) plus francium and actinium from period 7.',
+    p7: '7 (Fr, Ac)', close: 'Close', otherName: 'In Polish',
+    cat_alkali: 'Alkali metal', cat_alkaline: 'Alkaline earth metal', cat_transition: 'Transition metal',
+    cat_post: 'Post-transition metal', cat_metalloid: 'Metalloid', cat_nonmetal: 'Nonmetal',
+    cat_halogen: 'Halogen', cat_noble: 'Noble gas', cat_lanthanide: 'Lanthanide', cat_actinide: 'Actinide',
+    wrongTimes: '{w}× wrong, {c}× right', needScope: 'Pick at least one period and one skill in Settings.',
+    members: '{label} {n}'
+  },
+  pl: {
+    app: 'Trener pierwiastków',
+    tagline: 'Symbole, nazwy, grupy i okresy — aplikacja wraca do tego, w czym były błędy.',
+    start: 'Rozpocznij sesję', startSub: '{n} pytań, najpierw najsłabsze pierwiastki',
+    cont: 'Wróć do sesji', contSub: 'Pytanie {i} z {n}',
+    mistakes: 'Popraw błędy', mistakesSub: 'Odpowiedzi do poprawy: {n}', noMistakes: 'Brak błędów do poprawy',
+    learn: 'Ucz się z tablicy', learnSub: 'Przeglądaj grupy, okresy i nazwy',
+    progress: 'Postępy', progressSub: 'Co już umiesz, a co wymaga pracy',
+    settings: 'Ustawienia', settingsSub: 'Język, długość sesji, zakres',
+    mastered: 'opanowane', toFix: 'do poprawy', seen: 'przećwiczone',
+    q_symMC: 'Wybierz symbol', q_symType: 'Wpisz symbol',
+    q_nameMC: 'Wybierz nazwę', q_nameType: 'Wpisz nazwę',
+    q_group: 'W której grupie leży?', q_period: 'W którym okresie leży?',
+    q_tap: 'Wskaż jego miejsce w tablicy', q_where: 'Który pierwiastek jest w zaznaczonym miejscu?',
+    q_gp: 'Który pierwiastek leży w grupie {g}, okresie {p}?',
+    q_inGroup: 'Który z nich należy do grupy {g}?', q_inPeriod: 'Który z nich leży w okresie {p}?',
+    group: 'grupa', period: 'okres', Group: 'Grupa', Period: 'Okres',
+    gShort: 'grupa', pShort: 'okres',
+    check: 'Sprawdź', idk: 'Nie wiem', next: 'Dalej', finish: 'Zobacz wynik',
+    right: 'Dobrze', wrong: 'Tym razem nie', yourAnswer: 'Twoja odpowiedź: {a}',
+    caseNote: 'Uwaga na wielkość liter: {s}', spellNote: 'Poprawna pisownia: {n}',
+    typeHere: 'Wpisz tutaj', tapFirst: 'Dotknij pola', picked: 'Zaznaczono: grupa {g}, okres {p}',
+    done: 'Sesja zakończona', scoreOf: '{c} z {n} poprawnie', again: 'Rozpocznij kolejną sesję',
+    home: 'Wróć na start', missedList: 'Błędne odpowiedzi w tej sesji', allRight: 'Bez błędów w tej sesji.',
+    sk_sym: 'Symbole', sk_name: 'Nazwy', sk_grp: 'Grupy', sk_per: 'Okresy', sk_pos: 'Miejsce w tablicy',
+    bySkill: 'Według umiejętności', heat: 'Mapa pierwiastków', trouble: 'Najczęstsze błędy', history: 'Ostatnie sesje',
+    lg_new: 'niećwiczone', lg_learn: 'w nauce', lg_master: 'opanowane', lg_fix: 'do poprawy',
+    noHistory: 'Brak sesji. Rozpocznij pierwszą na ekranie startowym.', noTrouble: 'Nie ma jeszcze zapisanych błędów.',
+    hideSym: 'Ukryj symbole', showSym: 'Pokaż symbole', tapHint: 'Dotknij pierwiastka, aby zobaczyć szczegóły, albo numeru grupy lub okresu, aby wypisać jego pierwiastki.',
+    language: 'Język', length: 'Pytań w sesji', periods: 'Okresy do ćwiczenia',
+    practise: 'Co ćwiczyć', typing: 'Wpisywanie odpowiedzi', typingSub: 'Pojawia się, gdy pierwiastek jest już znany',
+    reset: 'Wyzeruj postępy', resetConfirm: 'Dotknij ponownie, aby usunąć wszystko', resetDone: 'Postępy usunięte',
+    scope: 'Obejmuje 74 pierwiastki: okresy 1–6 (lantan w miejscu lantanowców) oraz frans i aktyn z okresu 7.',
+    p7: '7 (Fr, Ac)', close: 'Zamknij', otherName: 'Po angielsku',
+    cat_alkali: 'Litowiec (metal alkaliczny)', cat_alkaline: 'Berylowiec (metal ziem alkalicznych)', cat_transition: 'Metal przejściowy',
+    cat_post: 'Metal bloku p', cat_metalloid: 'Półmetal', cat_nonmetal: 'Niemetal',
+    cat_halogen: 'Fluorowiec (halogen)', cat_noble: 'Helowiec (gaz szlachetny)', cat_lanthanide: 'Lantanowiec', cat_actinide: 'Aktynowiec',
+    wrongTimes: 'błędnie {w}×, dobrze {c}×', needScope: 'Wybierz w Ustawieniach co najmniej jeden okres i jedną umiejętność.',
+    members: '{label} {n}'
+  }
+};
+const t = (k, v) => {
+  let s = (STR[S.settings.lang] || STR.en)[k] ?? STR.en[k] ?? k;
+  if (v) for (const x in v) s = s.split('{' + x + '}').join(v[x]);
+  return s;
+};
+
+/* ---------- storage (localStorage + native Preferences when in the APK) ---------- */
+const KEY = 'elementTrainer.v1';
+const Cap = window.Capacitor;
+const isNative = !!(Cap && Cap.isNativePlatform && Cap.isNativePlatform());
+const reg = (window.capacitorExports && window.capacitorExports.registerPlugin) || (Cap && Cap.registerPlugin);
+const Prefs = isNative && reg ? reg('Preferences') : null;
+const AppPlugin = isNative && reg ? reg('App') : null;
+
+function defaults() {
+  const pl = (navigator.language || 'en').toLowerCase().startsWith('pl');
+  return { v: 1, saved: 0, items: {}, sessions: [],
+    settings: { lang: pl ? 'pl' : 'en', len: 20, periods: [1,2,3,4,5,6,7],
+      skills: { sym: true, name: true, grp: true, per: true, pos: true }, typing: true } };
+}
+function normalizeState(x) {
+  const d = defaults();
+  if (!x || typeof x !== 'object') return d;
+  return { ...d, ...x, settings: { ...d.settings, ...(x.settings || {}),
+    skills: { ...d.settings.skills, ...((x.settings || {}).skills || {}) } },
+    items: x.items || {}, sessions: Array.isArray(x.sessions) ? x.sessions : [] };
+}
+function loadLocal() {
+  try { const r = localStorage.getItem(KEY); return r ? JSON.parse(r) : null; } catch (e) { return null; }
+}
+let S = normalizeState(loadLocal());
+let saveTimer = null;
+function save() {
+  S.saved = Date.now();
+  const json = JSON.stringify(S);
+  try { localStorage.setItem(KEY, json); } catch (e) {}
+  if (Prefs) {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => { Prefs.set({ key: KEY, value: json }).catch(() => {}); }, 250);
+  }
+}
+async function loadDurable() {
+  if (!Prefs) return;
+  try {
+    const r = await Prefs.get({ key: KEY });
+    if (r && r.value) {
+      const d = JSON.parse(r.value);
+      if ((d.saved || 0) > (S.saved || 0)) { S = normalizeState(d); render(); }
+    }
+  } catch (e) {}
+}
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+const rnd = n => Math.floor(Math.random() * n);
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = rnd(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const nm = e => S.settings.lang === 'pl' ? e.pl : e.en;
+const other = e => S.settings.lang === 'pl' ? e.en : e.pl;
+const K = (z, sk) => z + ':' + sk;
+const norm = s => String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ł/g, 'l').replace(/\s+/g, '').trim();
+function lev(a, b) {
+  const m = a.length, n = b.length; const d = Array.from({ length: n + 1 }, (_, i) => i);
+  for (let i = 1; i <= m; i++) { let prev = d[0]; d[0] = i;
+    for (let j = 1; j <= n; j++) { const tmp = d[j]; d[j] = Math.min(d[j] + 1, d[j - 1] + 1, prev + (a[i - 1] === b[j - 1] ? 0 : 1)); prev = tmp; } }
+  return d[n];
+}
+function weighted(list) {
+  const total = list.reduce((s, x) => s + x.w, 0);
+  if (total <= 0) return null;
+  let r = Math.random() * total;
+  for (const x of list) { r -= x.w; if (r <= 0) return x; }
+  return list[list.length - 1];
+}
+const pool = () => ELS.filter(e => S.settings.periods.includes(e.p));
+const activeSkills = () => SKILLS.filter(s => S.settings.skills[s]);
+function openMistakes() {
+  const sk = activeSkills(); let n = 0;
+  for (const e of pool()) for (const s of sk) { const r = S.items[K(e.z, s)]; if (r && r.last === 0) n++; }
+  return n;
+}
+function elementMastery(e) {
+  const sk = activeSkills(); if (!sk.length) return { m: 0, seen: false, fix: false };
+  let sum = 0, seen = false, fix = false;
+  for (const s of sk) { const r = S.items[K(e.z, s)]; if (r) { seen = true; sum += r.b; if (r.last === 0) fix = true; } }
+  return { m: sum / (sk.length * 5), seen, fix };
+}
+function overall() {
+  const sk = activeSkills(), els = pool(); const total = els.length * sk.length;
+  let mastered = 0, seen = 0;
+  for (const e of els) for (const s of sk) { const r = S.items[K(e.z, s)]; if (r) { seen++; if (r.b >= 3 && r.last !== 0) mastered++; } }
+  return { total, mastered, seen, pct: total ? Math.round(100 * mastered / total) : 0 };
+}
+function heatStyle(e) {
+  const h = elementMastery(e);
+  if (h.fix) return 'background:color-mix(in oklab, var(--bad) 55%, var(--slot))';
+  if (!h.seen) return '';
+  const pct = Math.round(18 + h.m * 72);
+  return `background:color-mix(in oklab, var(--ok) ${pct}%, var(--slot))`;
+}
+function buzz(ms) { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} }
+
+/* ---------- periodic grid ---------- */
+function gridHTML(o = {}) {
+  const { mode = 'plain', mark = null, sel = null, okZ = null, badZ = null, showSym = true, heat = false, cats = false, activeG = null, activeP = null, headers = true } = o;
+  let h = '<div class="pt">';
+  if (headers) {
+    for (let g = 1; g <= 18; g++) h += `<button class="hd${activeG === g ? ' act' : ''}" data-act="hdrg" data-g="${g}" style="grid-column:${g + 1};grid-row:1" tabindex="-1">${g}</button>`;
+    for (let p = 1; p <= 7; p++) h += `<button class="hd v${activeP === p ? ' act' : ''}" data-act="hdrp" data-p="${p}" style="grid-column:1;grid-row:${p + 1}" tabindex="-1">${p}</button>`;
+  }
+  const inScope = new Set(S.settings.periods);
+  for (const e of ELS) {
+    let cls = 'cell';
+    if (cats) cls += ' cat-' + e.c;
+    if (mark === e.z) cls += ' mark';
+    if (sel === e.z) cls += ' sel';
+    if (okZ === e.z) cls += ' ok';
+    if (badZ === e.z) cls += ' bad';
+    if ((activeG && e.g === activeG) || (activeP && e.p === activeP)) cls += ' out';
+    if (mode === 'heat' && !inScope.has(e.p)) cls += ' dim';
+    const reveal = showSym || okZ === e.z || badZ === e.z;
+    const style = `grid-column:${e.g + 1};grid-row:${e.p + (headers ? 1 : 0)};` + (heat ? heatStyle(e) : '');
+    const label = mode === 'tap' ? `${t('Group')} ${e.g}, ${t('Period')} ${e.p}` : `${e.s} ${nm(e)}`;
+    h += `<button class="${cls}" style="${style}" data-act="cell" data-z="${e.z}" aria-label="${esc(label)}">${reveal ? e.s : ''}</button>`;
+  }
+  return h + '</div>';
+}
+
+/* ---------- element tile ---------- */
+const slot = '<span class="slot">?</span>';
+function tileHTML(e, o = {}) {
+  // o: reveal, hideSym, hideName, g:'show'|'slot'|'none', p:..., compact
+  if (o.reveal) {
+    return `<div class="tile cat-${e.c} reveal${o.compact ? ' compact' : ''}">
+      <div class="t-top"><span><b>${e.z}</b></span><span>${t('gShort')} <b>${e.g}</b> · ${t('pShort')} <b>${e.p}</b></span></div>
+      <div class="t-sym">${e.s}</div><div class="t-name">${esc(nm(e))}</div></div>`;
+  }
+  const gp = [];
+  if (o.g && o.g !== 'none') gp.push(`${t('gShort')} ${o.g === 'slot' ? slot : '<b>' + e.g + '</b>'}`);
+  if (o.p && o.p !== 'none') gp.push(`${t('pShort')} ${o.p === 'slot' ? slot : '<b>' + e.p + '</b>'}`);
+  return `<div class="tile${o.compact ? ' compact' : ''}">
+    <div class="t-top"><span></span><span>${gp.join(' &nbsp; ')}</span></div>
+    <div class="t-sym">${o.hideSym ? slot : e.s}</div>
+    <div class="t-name">${o.hideName ? slot : esc(nm(e))}</div></div>`;
+}
+function bannerHTML(big, small) {
+  return `<div class="tile banner"><div class="t-name">${esc(small)}</div><div class="t-sym">${big}</div><div class="t-name"></div></div>`;
+}
+
+/* ---------- session engine ---------- */
+let Q = null;      // active session
+let LAST = null;   // last finished session summary
+let ANS = null;    // current answer state (tap selection)
+
+function startSession(mode) {
+  const sk = activeSkills();
+  if (!sk.length || !pool().length) { toastScope(); return; }
+  Q = { mode, len: S.settings.len, i: 0, correct: 0, recent: [], asked: new Set(), newCount: 0,
+        pending: [], retried: new Set(), missed: [], cur: null, answered: true, results: [] };
+  go('quiz');
+}
+function toastScope() { alert(t('needScope')); }
+
+function pickItem() {
+  // 1) retries that are due now
+  const di = Q.pending.findIndex(p => p.due <= Q.i);
+  if (di >= 0) return Q.pending.splice(di, 1)[0];
+  // 2) sort candidates into buckets: fix (answered wrong last time), due (known, needs review), fresh (never asked)
+  const els = pool(), sk = activeSkills();
+  const newCap = Math.ceil(Q.len * 0.4);
+  const fix = [], due = [], fresh = [], leftovers = [];
+  for (const e of els) {
+    const touched = sk.some(s => S.items[K(e.z, s)]);
+    for (const s of sk) {
+      const k = K(e.z, s), r = S.items[k];
+      const recentPenalty = Q.recent.includes(e.z) ? 0.03 : 1;
+      if (Q.asked.has(k)) { leftovers.push({ z: e.z, sk: s, w: recentPenalty }); continue; }
+      if (!r) fresh.push({ z: e.z, sk: s, w: (touched ? 2 : (8 - e.p) / 7) * recentPenalty });
+      else if (r.last === 0) fix.push({ z: e.z, sk: s, w: (1 + Math.min(r.w, 5)) * recentPenalty });
+      else due.push({ z: e.z, sk: s, w: [6, 4, 2.4, 1.4, 0.7, 0.35][r.b] * (1 + Math.min(2, (Date.now() - r.t) / 864e5 / 3)) * recentPenalty });
+    }
+  }
+  let buckets;
+  if (Q.mode === 'mistakes') buckets = [[fix, 1]];
+  else buckets = [
+    [fix, 0.6],
+    [due, 0.25],
+    [fresh, Q.newCount < newCap ? 0.35 : 0.04]
+  ];
+  const live = buckets.filter(([b, p]) => b.length && p > 0);
+  if (live.length) {
+    const chosen = weighted(live.map(([b, p]) => ({ b, w: p })));
+    const got = weighted(chosen.b);
+    if (got) return got;
+  }
+  if (Q.pending.length) return Q.pending.shift();
+  if (Q.mode !== 'mistakes') return weighted(leftovers);
+  return null;
+}
+
+function nextQuestion() {
+  if (Q.i >= Q.len) return finish();
+  const item = pickItem();
+  if (!item) return finish();
+  const e = BYZ.get(item.z);
+  if (!S.items[K(item.z, item.sk)]) Q.newCount++;
+  Q.asked.add(K(item.z, item.sk));
+  Q.recent = [item.z, ...Q.recent].slice(0, 3);
+  Q.cur = buildQuestion(e, item.sk, !!item.retry);
+  Q.answered = false;
+  ANS = { sel: null };
+}
+
+function distractorPool() { const p = pool(); return p.length >= 10 ? p : ELS; }
+function similar(e, n, filter, extra) {
+  const c = distractorPool().filter(o => o.z !== e.z && (!filter || filter(o)));
+  return c.map(o => {
+    let s = Math.random() * 2;
+    if (o.s[0] === e.s[0]) s += 3;
+    if (nm(o)[0] === nm(e)[0]) s += 1;
+    if (o.g === e.g) s += 1;
+    if (Math.abs(o.g - e.g) <= 1 && Math.abs(o.p - e.p) <= 1) s += 1.5;
+    if (extra) s += extra(o);
+    return [s, o];
+  }).sort((a, b) => b[0] - a[0]).slice(0, n).map(x => x[1]);
+}
+
+function buildQuestion(e, sk, retry) {
+  const r = S.items[K(e.z, sk)];
+  const typed = !retry && S.settings.typing && r && r.b >= 2 && Math.random() < 0.55;
+  let type;
+  switch (sk) {
+    case 'sym': type = typed ? 'symType' : 'symMC'; break;
+    case 'name': type = typed ? 'nameType' : 'nameMC'; break;
+    case 'grp': type = Math.random() < 0.7 ? 'group' : 'inGroup'; break;
+    case 'per': type = Math.random() < 0.7 ? 'period' : 'inPeriod'; break;
+    default: { const x = Math.random(); type = x < 0.5 ? 'tap' : x < 0.75 ? 'where' : 'gp'; }
+  }
+  const q = { type, e, sk };
+  if (type === 'symMC' || type === 'nameMC' || type === 'where' || type === 'gp') {
+    q.opts = shuffle([e, ...similar(e, 3)]);
+  } else if (type === 'inGroup') {
+    q.opts = shuffle([e, ...similar(e, 3, o => o.g !== e.g, o => (o.p === e.p ? 1.5 : 0))]);
+  } else if (type === 'inPeriod') {
+    q.opts = shuffle([e, ...similar(e, 3, o => o.p !== e.p, o => (o.g === e.g ? 2 : 0))]);
+  }
+  return q;
+}
+
+function record(z, sk, ok) {
+  const k = K(z, sk);
+  const r = S.items[k] || { b: 0, n: 0, c: 0, w: 0, last: null, t: 0 };
+  r.n++; r.t = Date.now();
+  if (ok) { r.c++; r.b = r.n === 1 ? 2 : Math.min(5, r.b + 1); r.last = 1; }
+  else { r.w++; r.b = 0; r.last = 0; }
+  S.items[k] = r;
+  save();
+}
+
+function answer(ok, info = {}) {
+  if (!Q || Q.answered) return;
+  const q = Q.cur, e = q.e;
+  Q.answered = true;
+  Q.i++;
+  record(e.z, q.sk, ok);
+  Q.results.push({ z: e.z, sk: q.sk, ok });
+  if (ok) Q.correct++;
+  else {
+    buzz(60);
+    if (!Q.missed.some(m => m.z === e.z && m.sk === q.sk)) Q.missed.push({ z: e.z, sk: q.sk });
+    const rk = K(e.z, q.sk);
+    if (!Q.retried.has(rk)) { Q.retried.add(rk); Q.pending.push({ z: e.z, sk: q.sk, due: Q.i + 2 + rnd(3), retry: true }); }
+  }
+  // reveal tile
+  const tw = $('#tilewrap');
+  if (tw) tw.innerHTML = tileHTML(e, { reveal: true, compact: q.type === 'tap' || q.type === 'where' });
+  $('main')?.classList.add('answered');
+  showFeedback(ok, info);
+}
+
+function showFeedback(ok, info) {
+  const e = Q.cur.e, fb = $('#fb');
+  const last = Q.i >= Q.len;
+  let notes = '';
+  if (info.given != null && !ok) notes += `<p class="note">${esc(t('yourAnswer', { a: info.given }))}</p>`;
+  if (info.note) notes += `<p class="note">${esc(info.note)}</p>`;
+  fb.className = 'fb show ' + (ok ? 'ok' : 'bad');
+  fb.innerHTML = `<div class="inner">
+    <div class="row spread"><h2>${ok ? '✓ ' + t('right') : '✗ ' + t('wrong')}</h2></div>
+    <div class="facts">
+      <span class="fact"><b>${e.s}</b></span>
+      <span class="fact">${esc(nm(e))} <span class="muted">(${esc(other(e))})</span></span>
+      <span class="fact">${t('gShort')} <b>${e.g}</b></span>
+      <span class="fact">${t('pShort')} <b>${e.p}</b></span>
+    </div>
+    ${notes}
+    <button class="btn primary center" data-act="next"><b>${last ? t('finish') : t('next')}</b></button></div>`;
+  fb.querySelector('[data-act="next"]').focus({ preventScroll: true });
+  if (ok && !info.note) { clearTimeout(Q.autoT); Q.autoT = setTimeout(() => { if (Q && Q.answered) advance(); }, 1200); }
+}
+function hideFeedback() { const fb = $('#fb'); fb.className = 'fb'; }
+function advance() {
+  if (!Q) return;
+  clearTimeout(Q.autoT);
+  hideFeedback();
+  if (Q.i >= Q.len) return finish();
+  nextQuestion();
+  if (Q) renderQuizInto();
+}
+function finish() {
+  if (!Q) return;
+  hideFeedback();
+  const n = Q.results.length;
+  if (n) {
+    S.sessions.unshift({ d: Date.now(), n, c: Q.correct, m: Q.mode });
+    S.sessions = S.sessions.slice(0, 40);
+    save();
+  }
+  LAST = { n, c: Q.correct, missed: Q.missed.filter(m => S.items[K(m.z, m.sk)]?.last === 0), mode: Q.mode };
+  Q = null;
+  go('result');
+}
+
+/* ---------- views ---------- */
+function homeView() {
+  const o = overall(), mis = openMistakes();
+  let h = `<div class="wrap">
+    <div class="hero"><h1>${t('app')}</h1><p class="muted">${t('tagline')}</p>
+      <div class="stats">
+        <div class="stat"><b>${o.pct}%</b><span>${t('mastered')}</span></div>
+        <div class="stat"><b>${mis}</b><span>${t('toFix')}</span></div>
+        <div class="stat"><b>${o.seen}/${o.total}</b><span>${t('seen')}</span></div>
+      </div>
+      <div data-act="go" data-to="progress" role="link" aria-label="${t('progress')}">${gridHTML({ mode: 'heat', heat: true, showSym: true, headers: false })}</div>
+    </div>
+    <div class="stack">`;
+  if (Q && Q.results.length && Q.i < Q.len) {
+    h += `<button class="btn primary" data-act="resume"><b>${t('cont')}</b><span class="sub">${t('contSub', { i: Q.i + 1, n: Q.len })}</span></button>`;
+  }
+  h += `<button class="btn ${Q && Q.results.length ? '' : 'primary'}" data-act="start"><b>${t('start')}</b><span class="sub">${t('startSub', { n: S.settings.len })}</span></button>
+      <button class="btn" data-act="mistakes" ${mis ? '' : 'disabled'}><b>${t('mistakes')}</b><span class="sub">${mis ? t('mistakesSub', { n: mis }) : t('noMistakes')}</span></button>
+      <div class="grid2">
+        <button class="btn" data-act="go" data-to="learn"><b>${t('learn')}</b><span class="sub">${t('learnSub')}</span></button>
+        <button class="btn" data-act="go" data-to="progress"><b>${t('progress')}</b><span class="sub">${t('progressSub')}</span></button>
+      </div>
+      <button class="btn" data-act="go" data-to="settings"><b>${t('settings')}</b><span class="sub">${t('settingsSub')}</span></button>
+    </div></div>`;
+  return h;
+}
+
+function quizView() {
+  if (!Q) return homeView();
+  if (Q.answered) nextQuestion();
+  if (!Q) return '';
+  return '<div class="wrap" id="quizroot"></div>';
+}
+function renderQuizInto() {
+  const root = $('#quizroot'); if (!root || !Q || !Q.cur) return;
+  const q = Q.cur, e = q.e;
+  let tile = '', prompt = '', body = '';
+  const mcOpt = (o, i, mode) => {
+    const inner = mode === 'sym' ? `<span class="os">${o.s}</span>`
+      : mode === 'name' ? `<span class="on">${esc(nm(o))}</span>`
+      : `<span class="os">${o.s}</span><span class="on">${esc(nm(o))}</span>`;
+    return `<button class="opt" data-act="opt" data-i="${i}">${inner}</button>`;
+  };
+  switch (q.type) {
+    case 'symMC':
+      tile = tileHTML(e, { hideSym: true }); prompt = t('q_symMC');
+      body = `<div class="opts">${q.opts.map((o, i) => mcOpt(o, i, 'sym')).join('')}</div>`; break;
+    case 'nameMC':
+      tile = tileHTML(e, { hideName: true }); prompt = t('q_nameMC');
+      body = `<div class="opts">${q.opts.map((o, i) => mcOpt(o, i, 'name')).join('')}</div>`; break;
+    case 'symType':
+      tile = tileHTML(e, { hideSym: true }); prompt = t('q_symType');
+      body = typeBox('characters', 3); break;
+    case 'nameType':
+      tile = tileHTML(e, { hideName: true }); prompt = t('q_nameType');
+      body = typeBox('sentences', 20); break;
+    case 'group':
+      tile = tileHTML(e, { g: 'slot' }); prompt = t('q_group');
+      body = `<div class="nums">${Array.from({ length: 18 }, (_, i) => `<button class="num" data-act="num" data-v="${i + 1}">${i + 1}</button>`).join('')}</div>`; break;
+    case 'period':
+      tile = tileHTML(e, { p: 'slot' }); prompt = t('q_period');
+      body = `<div class="nums p7">${Array.from({ length: 7 }, (_, i) => `<button class="num" data-act="num" data-v="${i + 1}">${i + 1}</button>`).join('')}</div>`; break;
+    case 'inGroup':
+      tile = bannerHTML(e.g, t('Group')); prompt = t('q_inGroup', { g: e.g });
+      body = `<div class="opts">${q.opts.map((o, i) => mcOpt(o, i, 'both')).join('')}</div>`; break;
+    case 'inPeriod':
+      tile = bannerHTML(e.p, t('Period')); prompt = t('q_inPeriod', { p: e.p });
+      body = `<div class="opts">${q.opts.map((o, i) => mcOpt(o, i, 'both')).join('')}</div>`; break;
+    case 'gp':
+      tile = tileHTML(e, { hideSym: true, hideName: true, g: 'show', p: 'show' }); prompt = t('q_gp', { g: e.g, p: e.p });
+      body = `<div class="opts">${q.opts.map((o, i) => mcOpt(o, i, 'both')).join('')}</div>`; break;
+    case 'tap':
+      tile = tileHTML(e, { compact: true }); prompt = t('q_tap');
+      body = `<div id="gridwrap">${gridHTML({ mode: 'tap', showSym: false })}</div>
+        <p class="pickinfo" id="pickinfo">${t('tapFirst')}</p>
+        <button class="btn primary center" data-act="tapcheck" id="tapcheck" disabled><b>${t('check')}</b></button>`; break;
+    case 'where':
+      tile = tileHTML(e, { compact: true, hideSym: true, hideName: true }); prompt = t('q_where');
+      body = `<div>${gridHTML({ mode: 'tap', showSym: false, mark: e.z })}</div><div style="height:14px"></div>
+        <div class="opts">${q.opts.map((o, i) => mcOpt(o, i, 'both')).join('')}</div>`; break;
+  }
+  root.innerHTML = `<div class="top">
+      <button class="icon" data-act="quit" aria-label="${t('home')}">✕</button>
+      <div class="bar"><i style="width:${Math.round(100 * Q.i / Q.len)}%"></i></div>
+      <span class="count">${Q.i + 1}/${Q.len}</span></div>
+    <main>
+      <div id="tilewrap">${tile}</div>
+      <p class="prompt">${esc(prompt)}</p>
+      ${body}
+      <button class="skip" data-act="idk">${t('idk')}</button>
+    </main>`;
+  const inp = root.querySelector('input');
+  if (inp) setTimeout(() => inp.focus(), 60);
+  window.scrollTo(0, 0);
+}
+function typeBox(cap, max) {
+  return `<div class="typebox"><input id="typein" type="text" maxlength="${max}" autocomplete="off" autocorrect="off" autocapitalize="${cap === 'characters' ? 'none' : 'sentences'}" spellcheck="false" placeholder="${t('typeHere')}" enterkeyhint="done">
+    <button class="btn primary center" data-act="typecheck"><b>${t('check')}</b></button></div>`;
+}
+
+function resultView() {
+  if (!LAST) return homeView();
+  const mis = openMistakes();
+  const pct = LAST.n ? Math.round(100 * LAST.c / LAST.n) : 0;
+  let list = LAST.missed.length ? `<div class="list">${LAST.missed.map(m => missRow(m.z, m.sk)).join('')}</div>` : `<p class="muted">${t('allRight')}</p>`;
+  return `<div class="wrap">
+    <div class="top"><button class="icon" data-act="go" data-to="home" aria-label="${t('home')}">←</button></div>
+    <h2>${t('done')}</h2>
+    <div class="score">${pct}%</div><p class="muted">${t('scoreOf', { c: LAST.c, n: LAST.n })}</p>
+    <h3>${t('missedList')}</h3>${list}
+    <div class="stack" style="margin-top:22px">
+      ${mis ? `<button class="btn primary" data-act="mistakes"><b>${t('mistakes')}</b><span class="sub">${t('mistakesSub', { n: mis })}</span></button>` : ''}
+      <button class="btn ${mis ? '' : 'primary'}" data-act="start"><b>${t('again')}</b><span class="sub">${t('startSub', { n: S.settings.len })}</span></button>
+      <button class="btn" data-act="go" data-to="home"><b>${t('home')}</b></button>
+    </div></div>`;
+}
+function missRow(z, sk) {
+  const e = BYZ.get(z), r = S.items[K(z, sk)] || { w: 0, c: 0 };
+  return `<button class="li" data-act="detail" data-z="${z}">
+    <span class="mini cat-${e.c}">${e.s}</span>
+    <span class="grow"><b>${esc(nm(e))}</b><br><span class="tag">${t('sk_' + sk)} · ${t('gShort')} ${e.g}, ${t('pShort')} ${e.p}</span></span>
+    <span class="tag">${t('wrongTimes', { w: r.w, c: r.c })}</span></button>`;
+}
+
+let learnState = { hide: false, g: null, p: null };
+function learnView() {
+  const { hide, g, p } = learnState;
+  let members = '';
+  if (g || p) {
+    const els = ELS.filter(e => (g ? e.g === g : e.p === p));
+    members = `<div class="grouplist"><h3>${g ? t('Group') + ' ' + g : t('Period') + ' ' + p}</h3>
+      <div class="list">${els.map(e => `<button class="li" data-act="detail" data-z="${e.z}"><span class="mini cat-${e.c}">${hide ? '?' : e.s}</span>
+      <span class="grow"><b>${hide ? '' : esc(nm(e))}</b><br><span class="tag">${t('gShort')} ${e.g}, ${t('pShort')} ${e.p}</span></span></button>`).join('')}</div></div>`;
+  }
+  return `<div class="wrap">
+    <div class="top"><button class="icon" data-act="go" data-to="home" aria-label="${t('home')}">←</button><h2 style="flex:1">${t('learn')}</h2>
+      <button class="chip ${hide ? 'on' : ''}" data-act="togglehide">${hide ? t('showSym') : t('hideSym')}</button></div>
+    <p class="muted small">${t('tapHint')}</p>
+    ${gridHTML({ mode: 'learn', cats: true, showSym: !hide, activeG: g, activeP: p })}
+    <div class="legend">${CATS.map(c => `<span><i class="cat-${c}"></i>${t('cat_' + c)}</span>`).join('')}</div>
+    ${members}
+  </div>`;
+}
+
+function progressView() {
+  const o = overall(), sk = activeSkills(), els = pool();
+  const skillRows = sk.map(s => {
+    let m = 0, fix = 0;
+    for (const e of els) { const r = S.items[K(e.z, s)]; if (r) { if (r.b >= 3 && r.last !== 0) m++; if (r.last === 0) fix++; } }
+    const pct = els.length ? Math.round(100 * m / els.length) : 0;
+    return `<div class="skillrow"><span>${t('sk_' + s)}</span><div class="bar"><i style="width:${pct}%"></i></div><span class="count">${pct}%</span></div>`;
+  }).join('');
+  const trouble = [];
+  for (const [k, r] of Object.entries(S.items)) {
+    if (!r.w) continue;
+    const [z, s] = k.split(':');
+    if (!sk.includes(s) || !BYZ.has(+z)) continue;
+    trouble.push({ z: +z, s, score: (r.last === 0 ? 100 : 0) + r.w * 3 - r.c });
+  }
+  trouble.sort((a, b) => b.score - a.score);
+  const lang = S.settings.lang === 'pl' ? 'pl-PL' : 'en-GB';
+  const hist = S.sessions.slice(0, 10).map(x => {
+    const d = new Date(x.d).toLocaleString(lang, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    const pct = Math.round(100 * x.c / x.n);
+    return `<div class="skillrow"><span class="small">${esc(d)}</span><div class="bar"><i style="width:${pct}%;background:${pct >= 80 ? 'var(--ok)' : pct >= 50 ? 'var(--primary)' : 'var(--bad)'}"></i></div><span class="count">${x.c}/${x.n}</span></div>`;
+  }).join('');
+  return `<div class="wrap">
+    <div class="top"><button class="icon" data-act="go" data-to="home" aria-label="${t('home')}">←</button><h2>${t('progress')}</h2></div>
+    <div class="stats">
+      <div class="stat"><b>${o.pct}%</b><span>${t('mastered')}</span></div>
+      <div class="stat"><b>${openMistakes()}</b><span>${t('toFix')}</span></div>
+      <div class="stat"><b>${o.seen}/${o.total}</b><span>${t('seen')}</span></div>
+    </div>
+    <h3>${t('heat')}</h3>
+    ${gridHTML({ mode: 'heat', heat: true, showSym: true })}
+    <div class="legend">
+      <span><i style="background:var(--slot)"></i>${t('lg_new')}</span>
+      <span><i style="background:color-mix(in oklab,var(--ok) 35%,var(--slot))"></i>${t('lg_learn')}</span>
+      <span><i style="background:color-mix(in oklab,var(--ok) 90%,var(--slot))"></i>${t('lg_master')}</span>
+      <span><i style="background:color-mix(in oklab,var(--bad) 55%,var(--slot))"></i>${t('lg_fix')}</span>
+    </div>
+    <h3>${t('bySkill')}</h3><div class="stack">${skillRows}</div>
+    <h3>${t('trouble')}</h3>
+    ${trouble.length ? `<div class="list">${trouble.slice(0, 10).map(x => missRow(x.z, x.s)).join('')}</div>` : `<p class="muted">${t('noTrouble')}</p>`}
+    <h3>${t('history')}</h3>
+    ${hist ? `<div class="stack">${hist}</div>` : `<p class="muted">${t('noHistory')}</p>`}
+  </div>`;
+}
+
+let resetArmed = false;
+function settingsView() {
+  const st = S.settings;
+  const sw = (on, act, extra = '') => `<button class="switch ${on ? 'on' : ''}" role="switch" aria-checked="${on}" data-act="${act}" ${extra}></button>`;
+  return `<div class="wrap">
+    <div class="top"><button class="icon" data-act="go" data-to="home" aria-label="${t('home')}">←</button><h2>${t('settings')}</h2></div>
+    <div class="panel">
+      <div class="setting"><span>${t('language')}</span><div class="chips">
+        <button class="chip ${st.lang === 'pl' ? 'on' : ''}" data-act="lang" data-v="pl">Polski</button>
+        <button class="chip ${st.lang === 'en' ? 'on' : ''}" data-act="lang" data-v="en">English</button></div></div>
+      <div class="setting" style="display:block"><p style="margin-bottom:10px">${t('length')}</p><div class="chips">
+        ${[10, 20, 30, 50].map(n => `<button class="chip ${st.len === n ? 'on' : ''}" data-act="len" data-v="${n}">${n}</button>`).join('')}</div></div>
+      <div class="setting" style="display:block"><p style="margin-bottom:10px">${t('periods')}</p><div class="chips">
+        ${[1, 2, 3, 4, 5, 6, 7].map(p => `<button class="chip ${st.periods.includes(p) ? 'on' : ''}" data-act="per" data-v="${p}">${p === 7 ? t('p7') : p}</button>`).join('')}</div></div>
+    </div>
+    <h3>${t('practise')}</h3>
+    <div class="panel">
+      ${SKILLS.map(s => `<div class="setting"><span>${t('sk_' + s)}</span>${sw(st.skills[s], 'skill', `data-v="${s}"`)}</div>`).join('')}
+      <div class="setting"><span>${t('typing')}<br><span class="small muted">${t('typingSub')}</span></span>${sw(st.typing, 'typing')}</div>
+    </div>
+    <p class="small muted" style="margin:16px 2px">${t('scope')}</p>
+    <button class="btn center" data-act="reset"><b class="danger">${resetArmed ? t('resetConfirm') : t('reset')}</b></button>
+  </div>`;
+}
+
+/* ---------- modal ---------- */
+function openDetail(z) {
+  const e = BYZ.get(z);
+  const rows = activeSkills().map(s => {
+    const r = S.items[K(z, s)];
+    const b = r ? r.b : 0;
+    const dots = `<span class="dots ${r && r.last === 0 ? 'w' : ''}">${Array.from({ length: 5 }, (_, i) => `<i class="${i < b || (r && r.last === 0 && i === 0) ? 'f' : ''}"></i>`).join('')}</span>`;
+    return `<div class="setting"><span>${t('sk_' + s)}</span><span class="row">${r ? `<span class="small muted">${t('wrongTimes', { w: r.w, c: r.c })}</span>` : ''}${dots}</span></div>`;
+  }).join('');
+  $('#modal').innerHTML = `<div class="scrim" data-act="closemodal"><div class="sheet" role="dialog" aria-modal="true">
+    ${tileHTML(e, { reveal: true })}
+    <div class="facts" style="justify-content:center;margin-bottom:12px">
+      <span class="fact">${t('otherName')}: <b>${esc(other(e))}</b></span>
+      <span class="fact">${esc(t('cat_' + e.c))}</span>
+    </div>
+    <div class="panel">${rows}</div>
+    <div style="height:12px"></div>
+    <button class="btn center" data-act="closemodal"><b>${t('close')}</b></button>
+  </div></div>`;
+}
+function closeModal() { $('#modal').innerHTML = ''; }
+
+/* ---------- routing ---------- */
+const views = { home: homeView, quiz: quizView, result: resultView, learn: learnView, progress: progressView, settings: settingsView };
+function route() { const r = location.hash.slice(1); return views[r] ? r : 'home'; }
+function go(r) { closeModal(); if (route() === r) render(); else location.hash = r; }
+function render() {
+  document.documentElement.lang = S.settings.lang;
+  document.title = t('app');
+  const r = route();
+  if (r !== 'quiz') { hideFeedback(); }
+  if (r !== 'settings') resetArmed = false;
+  $('#app').innerHTML = views[r]();
+  if (r === 'quiz') { if (Q) renderQuizInto(); else if (route() === 'quiz') go('home'); }
+  if (r !== 'quiz') window.scrollTo(0, 0);
+}
+window.addEventListener('hashchange', render);
+
+/* ---------- events ---------- */
+function markOpts(chosenIdx) {
+  const q = Q.cur;
+  document.querySelectorAll('[data-act="opt"]').forEach(b => {
+    const i = +b.dataset.i; b.disabled = true;
+    if (q.opts[i].z === q.e.z) b.classList.add('ok');
+    else if (i === chosenIdx) b.classList.add('bad');
+  });
+}
+function checkTyped() {
+  const q = Q.cur, e = q.e, inp = $('#typein');
+  const raw = (inp.value || '').trim();
+  if (!raw) { inp.focus(); return; }
+  inp.disabled = true;
+  if (q.type === 'symType') {
+    if (raw === e.s) return answer(true);
+    if (raw.toLowerCase() === e.s.toLowerCase()) return answer(true, { note: t('caseNote', { s: e.s }) });
+    return answer(false, { given: raw });
+  }
+  const n = norm(raw);
+  const targets = [e.pl, e.en, ...(ALT[e.z] || [])].map(norm);
+  const shown = nm(e);
+  if (targets.includes(n)) {
+    const exact = [e.pl, e.en, ...(ALT[e.z] || [])].some(x => x.toLowerCase() === raw.toLowerCase());
+    return answer(true, exact ? {} : { note: t('spellNote', { n: shown }) });
+  }
+  if (n.length >= 5 && targets.some(x => lev(x, n) <= 1)) return answer(true, { note: t('spellNote', { n: shown }) });
+  answer(false, { given: raw });
+}
+
+document.addEventListener('click', ev => {
+  const el = ev.target.closest('[data-act]');
+  if (!el) return;
+  const act = el.dataset.act;
+  if (act === 'closemodal') { if (ev.target === el || el.tagName === 'BUTTON') closeModal(); return; }
+  switch (act) {
+    case 'go': go(el.dataset.to); break;
+    case 'start': startSession('adaptive'); break;
+    case 'mistakes': if (openMistakes()) startSession('mistakes'); break;
+    case 'resume': go('quiz'); break;
+    case 'quit': clearTimeout(Q && Q.autoT); go('home'); break;
+    case 'next': advance(); break;
+    case 'idk': if (Q && !Q.answered) { disableAnswers(); answer(false, {}); highlightCorrect(); } break;
+    case 'opt': {
+      if (!Q || Q.answered) break;
+      const i = +el.dataset.i; markOpts(i);
+      answer(Q.cur.opts[i].z === Q.cur.e.z, {});
+      break;
+    }
+    case 'num': {
+      if (!Q || Q.answered) break;
+      const q = Q.cur, v = +el.dataset.v, want = q.type === 'group' ? q.e.g : q.e.p;
+      document.querySelectorAll('[data-act="num"]').forEach(b => { b.disabled = true; if (+b.dataset.v === want) b.classList.add('ok'); });
+      if (v !== want) el.classList.add('bad');
+      answer(v === want, { given: v !== want ? v : null });
+      break;
+    }
+    case 'typecheck': if (Q && !Q.answered) checkTyped(); break;
+    case 'cell': {
+      const z = +el.dataset.z;
+      const r = route();
+      if (r === 'quiz' && Q && !Q.answered && Q.cur.type === 'tap') {
+        ANS.sel = z;
+        document.querySelectorAll('.cell.sel').forEach(c => c.classList.remove('sel'));
+        el.classList.add('sel');
+        const e = BYZ.get(z);
+        $('#pickinfo').textContent = t('picked', { g: e.g, p: e.p });
+        $('#tapcheck').disabled = false;
+      } else if (r === 'learn' || r === 'progress') openDetail(z);
+      else if (r === 'home') go('progress');
+      break;
+    }
+    case 'tapcheck': {
+      if (!Q || Q.answered || ANS.sel == null) break;
+      const q = Q.cur, ok = ANS.sel === q.e.z;
+      $('#gridwrap').innerHTML = gridHTML({ mode: 'tap', showSym: false, okZ: q.e.z, badZ: ok ? null : ANS.sel });
+      $('#tapcheck').disabled = true;
+      const picked = BYZ.get(ANS.sel);
+      answer(ok, ok ? {} : { given: `${t('gShort')} ${picked.g}, ${t('pShort')} ${picked.p}` });
+      break;
+    }
+    case 'detail': openDetail(+el.dataset.z); break;
+    case 'hdrg': if (route() === 'learn') { learnState.g = learnState.g === +el.dataset.g ? null : +el.dataset.g; learnState.p = null; render(); } break;
+    case 'hdrp': if (route() === 'learn') { learnState.p = learnState.p === +el.dataset.p ? null : +el.dataset.p; learnState.g = null; render(); } break;
+    case 'togglehide': learnState.hide = !learnState.hide; render(); break;
+    case 'lang': S.settings.lang = el.dataset.v; save(); render(); break;
+    case 'len': S.settings.len = +el.dataset.v; save(); render(); break;
+    case 'per': {
+      const p = +el.dataset.v, a = S.settings.periods;
+      S.settings.periods = a.includes(p) ? a.filter(x => x !== p) : [...a, p].sort();
+      save(); render(); break;
+    }
+    case 'skill': S.settings.skills[el.dataset.v] = !S.settings.skills[el.dataset.v]; save(); render(); break;
+    case 'typing': S.settings.typing = !S.settings.typing; save(); render(); break;
+    case 'reset':
+      if (!resetArmed) { resetArmed = true; render(); }
+      else { const st = S.settings; S = defaults(); S.settings = st; Q = null; LAST = null; resetArmed = false; save(); render(); }
+      break;
+  }
+});
+function disableAnswers() {
+  document.querySelectorAll('.opt,.num,#typein,#tapcheck').forEach(b => b.disabled = true);
+}
+function highlightCorrect() {
+  const q = Q && Q.cur; if (!q) return;
+  if (q.opts) document.querySelectorAll('[data-act="opt"]').forEach(b => { if (q.opts[+b.dataset.i].z === q.e.z) b.classList.add('ok'); });
+  if (q.type === 'group' || q.type === 'period') {
+    const want = q.type === 'group' ? q.e.g : q.e.p;
+    document.querySelectorAll('[data-act="num"]').forEach(b => { if (+b.dataset.v === want) b.classList.add('ok'); });
+  }
+  if (q.type === 'tap') $('#gridwrap').innerHTML = gridHTML({ mode: 'tap', showSym: false, okZ: q.e.z });
+  if (q.type === 'symType' || q.type === 'nameType') { const i = $('#typein'); if (i) i.value = q.type === 'symType' ? q.e.s : nm(q.e); }
+}
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'Enter') {
+    if (ev.target && ev.target.tagName === 'BUTTON') return;
+    if (ev.target && ev.target.id === 'typein') { ev.preventDefault(); if (Q && !Q.answered) checkTyped(); }
+    else if (Q && Q.answered && $('#fb').classList.contains('show')) { ev.preventDefault(); advance(); }
+  }
+  if (ev.key === 'Escape' && $('#modal').innerHTML) closeModal();
+});
+
+/* ---------- Android back button ---------- */
+if (AppPlugin) {
+  try {
+    AppPlugin.addListener('backButton', () => {
+      if ($('#modal').innerHTML) return closeModal();
+      if (route() !== 'home') return go('home');
+      AppPlugin.exitApp();
+    });
+  } catch (e) {}
+}
+
+render();
+loadDurable();
+})();
+</script>
+</body>
+</html>
