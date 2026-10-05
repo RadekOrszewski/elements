@@ -48,6 +48,16 @@ npm run apk           # → android/app/build/outputs/apk/debug/app-debug.apk
 - `android/` — Capacitor 8 Android project (icons, splash, permissions already set).
 - `.github/workflows/build-apk.yml` — cloud build + release.
 
+## Learning by group or period
+
+"Grupy i okresy" on the home screen runs a session limited to one group
+(1–18, each named: litowce, berylowce, … helowce) or one period. Inside a
+group session the "which group is it?" question switches to the harder
+variant that mixes in elements from other groups, so the answer isn't given
+away by the scope; the same applies to periods. Session length shrinks
+automatically for small sets (period 1 is 10 questions, not 20), and periods
+switched off in Settings stay out — those rows show as disabled.
+
 ## How the app adapts
 
 Every element × skill pair (symbol, name, group, period, place in table) has a
@@ -58,3 +68,7 @@ earlier periods first). A wrong answer resets the box to 0 and the item comes
 back once more 2–4 questions later in the same session. "Fix my mistakes"
 runs a session made only of items whose last answer was wrong.
 Typed answers appear once an item reaches box 2.
+
+After every answer, right or wrong, the element's full data (symbol, both
+names, atomic number, group with its name, period, category) stays on screen
+until you press "Dalej" / "Next".
