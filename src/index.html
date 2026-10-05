@@ -134,13 +134,28 @@ p{margin:0}
 .typebox input:focus{border-color:var(--primary);outline:none}
 .pickinfo{text-align:center;min-height:22px;margin:10px 0;color:var(--muted);font-size:14px}
 .skip{display:block;margin:16px auto 0;background:none;border:0;color:var(--muted);text-decoration:underline;font-size:15px;padding:8px}
-main.answered{padding-bottom:190px}
+main.answered{padding-bottom:330px}
 
 /* feedback sheet */
 .fb{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:4px solid var(--ok);padding:16px 20px calc(16px + var(--sab));transform:translateY(105%);transition:transform .18s ease-out;box-shadow:0 -8px 30px rgba(0,0,0,.12)}
 .fb.show{transform:none}
 .fb.bad{border-top-color:var(--bad)}
+.fb{max-height:88vh;overflow:auto}
 .fb .inner{max-width:540px;margin:0 auto;display:grid;gap:10px}
+.fbcard{display:flex;align-items:center;gap:14px}
+.fbsym{font-family:var(--display);font-weight:800;font-size:44px;line-height:1;min-width:1.6em;text-align:center;border-radius:10px;padding:8px 6px}
+.fbname{font-size:20px;font-weight:650;line-height:1.2}
+.fbz{font-size:13px;color:var(--muted)}
+.scopetag{text-align:center;font-size:14px;color:var(--muted);margin:-6px 0 2px}
+.scopetag b{color:var(--ink)}
+.focusrow{display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;width:100%;text-align:left}
+.focusrow .no{font-family:var(--display);font-weight:800;font-size:22px;text-align:center}
+.focusrow .nm{font-weight:600}
+.focusrow .syms{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.focusrow .bar{width:48px;flex:none}
+.focusrow .count{min-width:34px;font-size:13px}
+.focusrow .row{gap:8px}
+.focusrow[disabled]{opacity:.45}
 .fb h2{font-size:22px}
 .fb.ok h2{color:var(--ok)} .fb.bad h2{color:var(--bad)}
 .facts{display:flex;flex-wrap:wrap;gap:6px}
@@ -309,7 +324,30 @@ const STR = {
     cat_post: 'Post-transition metal', cat_metalloid: 'Metalloid', cat_nonmetal: 'Nonmetal',
     cat_halogen: 'Halogen', cat_noble: 'Noble gas', cat_lanthanide: 'Lanthanide', cat_actinide: 'Actinide',
     wrongTimes: '{w}× wrong, {c}× right', needScope: 'Pick at least one period and one skill in Settings.',
-    members: '{label} {n}'
+    members: '{label} {n}',
+    focus: 'Groups and periods', focusSub: 'Practise one group or one period at a time',
+    tabG: 'Groups', tabP: 'Periods',
+    focusHint: 'Tap a group or a period to practise only those elements. Periods switched off in Settings are left out.',
+    nEls: '{n} elements', emptyScope: 'off in Settings',
+    scopeLine: 'Practising {label}', atomicNo: 'Atomic number',
+    g1: 'Alkali metals',
+    g2: 'Alkaline earth metals',
+    g3: 'Scandium group',
+    g4: 'Titanium group',
+    g5: 'Vanadium group',
+    g6: 'Chromium group',
+    g7: 'Manganese group',
+    g8: 'Iron group',
+    g9: 'Cobalt group',
+    g10: 'Nickel group',
+    g11: 'Copper group',
+    g12: 'Zinc group',
+    g13: 'Boron group',
+    g14: 'Carbon group',
+    g15: 'Pnictogens',
+    g16: 'Chalcogens',
+    g17: 'Halogens',
+    g18: 'Noble gases',
   },
   pl: {
     app: 'Trener pierwiastków',
@@ -349,7 +387,30 @@ const STR = {
     cat_post: 'Metal bloku p', cat_metalloid: 'Półmetal', cat_nonmetal: 'Niemetal',
     cat_halogen: 'Fluorowiec (halogen)', cat_noble: 'Helowiec (gaz szlachetny)', cat_lanthanide: 'Lantanowiec', cat_actinide: 'Aktynowiec',
     wrongTimes: 'błędnie {w}×, dobrze {c}×', needScope: 'Wybierz w Ustawieniach co najmniej jeden okres i jedną umiejętność.',
-    members: '{label} {n}'
+    members: '{label} {n}',
+    focus: 'Grupy i okresy', focusSub: 'Ćwicz po jednej grupie lub jednym okresie',
+    tabG: 'Grupy', tabP: 'Okresy',
+    focusHint: 'Dotknij grupy lub okresu, aby ćwiczyć tylko te pierwiastki. Okresy wyłączone w Ustawieniach są pomijane.',
+    nEls: 'pierwiastków: {n}', emptyScope: 'wyłączony w Ustawieniach',
+    scopeLine: 'Ćwiczysz: {label}', atomicNo: 'Liczba atomowa',
+    g1: 'Litowce',
+    g2: 'Berylowce',
+    g3: 'Skandowce',
+    g4: 'Tytanowce',
+    g5: 'Wanadowce',
+    g6: 'Chromowce',
+    g7: 'Manganowce',
+    g8: 'Żelazowce',
+    g9: 'Kobaltowce',
+    g10: 'Niklowce',
+    g11: 'Miedziowce',
+    g12: 'Cynkowce',
+    g13: 'Borowce',
+    g14: 'Węglowce',
+    g15: 'Azotowce',
+    g16: 'Tlenowce',
+    g17: 'Fluorowce',
+    g18: 'Helowce',
   }
 };
 const t = (k, v) => {
@@ -506,10 +567,21 @@ let Q = null;      // active session
 let LAST = null;   // last finished session summary
 let ANS = null;    // current answer state (tap selection)
 
-function startSession(mode) {
-  const sk = activeSkills();
-  if (!sk.length || !pool().length) { toastScope(); return; }
-  Q = { mode, len: S.settings.len, i: 0, correct: 0, recent: [], asked: new Set(), newCount: 0,
+function scopeEls(scope) {
+  const els = pool();
+  if (!scope) return els;
+  return els.filter(e => scope.k === 'g' ? e.g === scope.v : e.p === scope.v);
+}
+function scopeLabel(scope) {
+  if (!scope) return '';
+  return scope.k === 'g' ? `${t('Group')} ${scope.v} · ${t('g' + scope.v)}` : `${t('Period')} ${scope.v}`;
+}
+function startSession(mode, scope = null) {
+  const sk = activeSkills(), els = scopeEls(scope);
+  if (!sk.length || !els.length) { toastScope(); return; }
+  // a small group shouldn't stretch into a long session of repeats
+  const len = Math.min(S.settings.len, Math.max(4, els.length * sk.length));
+  Q = { mode, scope, len, i: 0, correct: 0, recent: [], asked: new Set(), newCount: 0,
         pending: [], retried: new Set(), missed: [], cur: null, answered: true, results: [] };
   go('quiz');
 }
@@ -520,7 +592,7 @@ function pickItem() {
   const di = Q.pending.findIndex(p => p.due <= Q.i);
   if (di >= 0) return Q.pending.splice(di, 1)[0];
   // 2) sort candidates into buckets: fix (answered wrong last time), due (known, needs review), fresh (never asked)
-  const els = pool(), sk = activeSkills();
+  const els = scopeEls(Q.scope), sk = activeSkills();
   const newCap = Math.ceil(Q.len * 0.4);
   const fix = [], due = [], fresh = [], leftovers = [];
   for (const e of els) {
@@ -586,8 +658,8 @@ function buildQuestion(e, sk, retry) {
   switch (sk) {
     case 'sym': type = typed ? 'symType' : 'symMC'; break;
     case 'name': type = typed ? 'nameType' : 'nameMC'; break;
-    case 'grp': type = Math.random() < 0.7 ? 'group' : 'inGroup'; break;
-    case 'per': type = Math.random() < 0.7 ? 'period' : 'inPeriod'; break;
+    case 'grp': type = (Q.scope && Q.scope.k === 'g') ? 'inGroup' : (Math.random() < 0.7 ? 'group' : 'inGroup'); break;
+    case 'per': type = (Q.scope && Q.scope.k === 'p') ? 'inPeriod' : (Math.random() < 0.7 ? 'period' : 'inPeriod'); break;
     default: { const x = Math.random(); type = x < 0.5 ? 'tap' : x < 0.75 ? 'where' : 'gp'; }
   }
   const q = { type, e, sk };
@@ -641,21 +713,26 @@ function showFeedback(ok, info) {
   fb.className = 'fb show ' + (ok ? 'ok' : 'bad');
   fb.innerHTML = `<div class="inner">
     <div class="row spread"><h2>${ok ? '✓ ' + t('right') : '✗ ' + t('wrong')}</h2></div>
+    <div class="fbcard">
+      <span class="fbsym cat-${e.c}">${e.s}</span>
+      <span>
+        <span class="fbname">${esc(nm(e))}</span><br>
+        <span class="fbz">${t('otherName')}: ${esc(other(e))}</span>
+      </span>
+    </div>
     <div class="facts">
-      <span class="fact"><b>${e.s}</b></span>
-      <span class="fact">${esc(nm(e))} <span class="muted">(${esc(other(e))})</span></span>
-      <span class="fact">${t('gShort')} <b>${e.g}</b></span>
-      <span class="fact">${t('pShort')} <b>${e.p}</b></span>
+      <span class="fact">${t('atomicNo')} <b>${e.z}</b></span>
+      <span class="fact">${t('Group')} <b>${e.g}</b> · ${esc(t('g' + e.g))}</span>
+      <span class="fact">${t('Period')} <b>${e.p}</b></span>
+      <span class="fact">${esc(t('cat_' + e.c))}</span>
     </div>
     ${notes}
     <button class="btn primary center" data-act="next"><b>${last ? t('finish') : t('next')}</b></button></div>`;
   fb.querySelector('[data-act="next"]').focus({ preventScroll: true });
-  if (ok && !info.note) { clearTimeout(Q.autoT); Q.autoT = setTimeout(() => { if (Q && Q.answered) advance(); }, 1200); }
 }
 function hideFeedback() { const fb = $('#fb'); fb.className = 'fb'; }
 function advance() {
   if (!Q) return;
-  clearTimeout(Q.autoT);
   hideFeedback();
   if (Q.i >= Q.len) return finish();
   nextQuestion();
@@ -666,11 +743,11 @@ function finish() {
   hideFeedback();
   const n = Q.results.length;
   if (n) {
-    S.sessions.unshift({ d: Date.now(), n, c: Q.correct, m: Q.mode });
+    S.sessions.unshift({ d: Date.now(), n, c: Q.correct, m: Q.mode, sc: Q.scope ? Q.scope.k + Q.scope.v : null });
     S.sessions = S.sessions.slice(0, 40);
     save();
   }
-  LAST = { n, c: Q.correct, missed: Q.missed.filter(m => S.items[K(m.z, m.sk)]?.last === 0), mode: Q.mode };
+  LAST = { n, c: Q.correct, scope: Q.scope, missed: Q.missed.filter(m => S.items[K(m.z, m.sk)]?.last === 0), mode: Q.mode };
   Q = null;
   go('result');
 }
@@ -693,6 +770,7 @@ function homeView() {
   }
   h += `<button class="btn ${Q && Q.results.length ? '' : 'primary'}" data-act="start"><b>${t('start')}</b><span class="sub">${t('startSub', { n: S.settings.len })}</span></button>
       <button class="btn" data-act="mistakes" ${mis ? '' : 'disabled'}><b>${t('mistakes')}</b><span class="sub">${mis ? t('mistakesSub', { n: mis }) : t('noMistakes')}</span></button>
+      <button class="btn" data-act="go" data-to="focus"><b>${t('focus')}</b><span class="sub">${t('focusSub')}</span></button>
       <div class="grid2">
         <button class="btn" data-act="go" data-to="learn"><b>${t('learn')}</b><span class="sub">${t('learnSub')}</span></button>
         <button class="btn" data-act="go" data-to="progress"><b>${t('progress')}</b><span class="sub">${t('progressSub')}</span></button>
@@ -760,6 +838,7 @@ function renderQuizInto() {
       <button class="icon" data-act="quit" aria-label="${t('home')}">✕</button>
       <div class="bar"><i style="width:${Math.round(100 * Q.i / Q.len)}%"></i></div>
       <span class="count">${Q.i + 1}/${Q.len}</span></div>
+    ${Q.scope ? `<p class="scopetag">${esc(t('scopeLine', { label: scopeLabel(Q.scope) }))}</p>` : ''}
     <main>
       <div id="tilewrap">${tile}</div>
       <p class="prompt">${esc(prompt)}</p>
@@ -787,7 +866,7 @@ function resultView() {
     <h3>${t('missedList')}</h3>${list}
     <div class="stack" style="margin-top:22px">
       ${mis ? `<button class="btn primary" data-act="mistakes"><b>${t('mistakes')}</b><span class="sub">${t('mistakesSub', { n: mis })}</span></button>` : ''}
-      <button class="btn ${mis ? '' : 'primary'}" data-act="start"><b>${t('again')}</b><span class="sub">${t('startSub', { n: S.settings.len })}</span></button>
+      <button class="btn ${mis ? '' : 'primary'}" data-act="start" ${LAST.scope ? `data-k="${LAST.scope.k}" data-v="${LAST.scope.v}"` : ''}><b>${t('again')}</b><span class="sub">${LAST.scope ? esc(scopeLabel(LAST.scope)) : t('startSub', { n: S.settings.len })}</span></button>
       <button class="btn" data-act="go" data-to="home"><b>${t('home')}</b></button>
     </div></div>`;
 }
@@ -816,6 +895,36 @@ function learnView() {
     ${gridHTML({ mode: 'learn', cats: true, showSym: !hide, activeG: g, activeP: p })}
     <div class="legend">${CATS.map(c => `<span><i class="cat-${c}"></i>${t('cat_' + c)}</span>`).join('')}</div>
     ${members}
+  </div>`;
+}
+
+let focusTab = 'g';
+function focusView() {
+  const sk = activeSkills();
+  const rows = (focusTab === 'g' ? [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18] : [1,2,3,4,5,6,7]).map(v => {
+    const scope = { k: focusTab, v };
+    const inScope = scopeEls(scope);
+    const all = ELS.filter(e => focusTab === 'g' ? e.g === v : e.p === v);
+    let m = 0;
+    for (const e of inScope) for (const s of sk) { const r = S.items[K(e.z, s)]; if (r && r.b >= 3 && r.last !== 0) m++; }
+    const pct = inScope.length && sk.length ? Math.round(100 * m / (inScope.length * sk.length)) : 0;
+    const name = focusTab === 'g' ? t('g' + v) : t('nEls', { n: all.length });
+    const syms = all.map(e => inScope.includes(e) ? e.s : `<span style="opacity:.4">${e.s}</span>`).join(' ');
+    const off = !inScope.length;
+    return `<button class="focusrow" data-act="focusgo" data-k="${focusTab}" data-v="${v}" ${off ? 'disabled' : ''}>
+      <span class="no">${v}</span>
+      <span style="min-width:0"><span class="nm">${esc(name)}</span><br><span class="syms">${off ? t('emptyScope') : syms}</span></span>
+      <span class="row"><span class="bar"><i style="width:${pct}%"></i></span><span class="count">${pct}%</span></span>
+    </button>`;
+  }).join('');
+  return `<div class="wrap">
+    <div class="top"><button class="icon" data-act="go" data-to="home" aria-label="${t('home')}">←</button><h2>${t('focus')}</h2></div>
+    <div class="chips" style="margin-bottom:12px">
+      <button class="chip ${focusTab === 'g' ? 'on' : ''}" data-act="focustab" data-v="g">${t('tabG')}</button>
+      <button class="chip ${focusTab === 'p' ? 'on' : ''}" data-act="focustab" data-v="p">${t('tabP')}</button>
+    </div>
+    <p class="muted small" style="margin-bottom:12px">${t('focusHint')}</p>
+    <div class="list">${rows}</div>
   </div>`;
 }
 
@@ -903,6 +1012,7 @@ function openDetail(z) {
     <div class="facts" style="justify-content:center;margin-bottom:12px">
       <span class="fact">${t('otherName')}: <b>${esc(other(e))}</b></span>
       <span class="fact">${esc(t('cat_' + e.c))}</span>
+      <span class="fact">${t('Group')} <b>${e.g}</b> · ${esc(t('g' + e.g))}</span>
     </div>
     <div class="panel">${rows}</div>
     <div style="height:12px"></div>
@@ -912,7 +1022,7 @@ function openDetail(z) {
 function closeModal() { $('#modal').innerHTML = ''; }
 
 /* ---------- routing ---------- */
-const views = { home: homeView, quiz: quizView, result: resultView, learn: learnView, progress: progressView, settings: settingsView };
+const views = { home: homeView, quiz: quizView, result: resultView, learn: learnView, focus: focusView, progress: progressView, settings: settingsView };
 function route() { const r = location.hash.slice(1); return views[r] ? r : 'home'; }
 function go(r) { closeModal(); if (route() === r) render(); else location.hash = r; }
 function render() {
@@ -964,10 +1074,12 @@ document.addEventListener('click', ev => {
   if (act === 'closemodal') { if (ev.target === el || el.tagName === 'BUTTON') closeModal(); return; }
   switch (act) {
     case 'go': go(el.dataset.to); break;
-    case 'start': startSession('adaptive'); break;
+    case 'start': startSession('adaptive', el.dataset.k ? { k: el.dataset.k, v: +el.dataset.v } : null); break;
+    case 'focusgo': startSession('adaptive', { k: el.dataset.k, v: +el.dataset.v }); break;
+    case 'focustab': focusTab = el.dataset.v; render(); break;
     case 'mistakes': if (openMistakes()) startSession('mistakes'); break;
     case 'resume': go('quiz'); break;
-    case 'quit': clearTimeout(Q && Q.autoT); go('home'); break;
+    case 'quit': go('home'); break;
     case 'next': advance(); break;
     case 'idk': if (Q && !Q.answered) { disableAnswers(); answer(false, {}); highlightCorrect(); } break;
     case 'opt': {
